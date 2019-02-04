@@ -16,8 +16,8 @@ const BaseUnit = 100
 // PlayerSize is the size of each player
 const PlayerSize = 4 * BaseUnit
 
-// PlayerMaxSpeed is the max speed that a play may move
-const PlayerMaxSpeed = 2.5 * BaseUnit
+// PlayerMaxSpeed is the max speed that a play may move  by frame
+const PlayerMaxSpeed = 125
 
 // CourtWidth is the width of the court (horizontal view)
 const CourtWidth = 200 * BaseUnit
@@ -28,14 +28,14 @@ const CourtHeight = 100 * BaseUnit
 // BallSize size of the element ball
 const BallSize = 2 * BaseUnit
 
-// BallDeceleration is the deceleration rate of the ball speed.
-const BallDeceleration = 0.4 * BaseUnit
+// BallDeceleration is the deceleration rate of the ball speed  by frame
+const BallDeceleration = 0.2 * BaseUnit
 
-// BallMaxSpeed is the max speed of the ball
-const BallMaxSpeed = 8.8 * BaseUnit
+// BallMaxSpeed is the max speed of the ball by frame
+const BallMaxSpeed = 4.4 * BaseUnit
 
-// BallMinSpeed is the minimal speed of the ball. When the ball was at this speed or slower, it will be considered stopped.
-const BallMinSpeed = 0.05 * BaseUnit
+// BallMinSpeed is the minimal speed of the ball  by frame. When the ball was at this speed or slower, it will be considered stopped.
+const BallMinSpeed = 2
 
 // BallTimeInGoalZone is the max number of turns that the ball may be in a goal zone. After that, the ball will be auto kicked
 // towards the center of the field.
