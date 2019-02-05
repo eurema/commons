@@ -29,10 +29,10 @@ const CourtHeight = 100 * BaseUnit
 const BallSize = 2 * BaseUnit
 
 // BallDeceleration is the deceleration rate of the ball speed  by frame
-const BallDeceleration = 0.2 * BaseUnit
+const BallDeceleration = 0.1 * BaseUnit
 
 // BallMaxSpeed is the max speed of the ball by frame
-const BallMaxSpeed = 4.4 * BaseUnit
+const BallMaxSpeed = 4.0 * BaseUnit
 
 // BallMinSpeed is the minimal speed of the ball  by frame. When the ball was at this speed or slower, it will be considered stopped.
 const BallMinSpeed = 2
