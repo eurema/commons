@@ -17,7 +17,7 @@ const BaseUnit = 100
 const PlayerSize = 4 * BaseUnit
 
 // PlayerMaxSpeed is the max speed that a play may move  by frame
-const PlayerMaxSpeed = 125
+const PlayerMaxSpeed = 100
 
 // CourtWidth is the width of the court (horizontal view)
 const CourtWidth = 200 * BaseUnit
@@ -29,7 +29,7 @@ const CourtHeight = 100 * BaseUnit
 const BallSize = 2 * BaseUnit
 
 // BallDeceleration is the deceleration rate of the ball speed  by frame
-const BallDeceleration = 0.1 * BaseUnit
+const BallDeceleration = 10.0
 
 // BallMaxSpeed is the max speed of the ball by frame
 const BallMaxSpeed = 4.0 * BaseUnit
