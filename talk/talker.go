@@ -74,8 +74,7 @@ func (c *Channel) defineListenerTask() {
 		c.mu.Lock()
 		defer c.mu.Unlock()
 		msgType, message, err := c.ws.ReadMessage()
-		if msgType == -1 {
-			commons.LogError("Msg error: %s %s", msgType, err)
+		if msgType == -1 { //normal close request
 			task.RequestStop()
 			return
 		} else if err != nil {
@@ -87,7 +86,7 @@ func (c *Channel) defineListenerTask() {
 		}
 	})
 	c.listenerTask.OnStop = func(task *commons.Task) {
-		if task.IsRunning() {
+		if !task.StopRequested() {
 			//@todo implement a recover method to try to connect again when an error is detected
 			commons.LogError("Here is a nice place to implement a recover method")
 			commons.Cleanup(true)
@@ -112,13 +111,15 @@ func (c *Channel) CloseConnection() {
 
 func (c *Channel) defineWebsocketCloseHandler() {
 	c.ws.SetCloseHandler(func(code int, text string) error {
+		wasAlreadyClosed := c.connectionOpen
 		c.connectionOpen = false
 		c.listenerTask.RequestStop()
 		if code == websocket.CloseNormalClosure {
 			commons.Log("Connection closed by the server")
-		} else {
+		} else if !wasAlreadyClosed { //ensure that queued message won't be confunded with error messages
 			commons.LogError("Connection abnormal closed: %d-%s", code, text)
 		}
+
 		return nil
 	})
 }
