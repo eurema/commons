@@ -23,6 +23,11 @@ type KickOrderData struct {
 	Velocity Physics.Velocity `json:"velocity"`
 }
 
+// JumpOrderData is the expected format of the data field of an order when it's type is Jump
+type JumpOrderData struct {
+	Velocity Physics.Velocity `json:"velocity"`
+}
+
 const (
 	// orders sent by the PLAYER
 
@@ -33,11 +38,18 @@ const (
 	KICK OrderType = "KICK"
 	// CATCH is an order to try to catch the ball, that has to being touched by the player
 	CATCH OrderType = "CATCH"
+	// JUMP is an action executed only by goal keepers! It allow the goal keeper to use extra speed during a short interval
+	JUMP OrderType = "JUMP"
 )
 
 // GetMoveOrderData returns the Data order field in MoveOrderData format
 func (o *Order) GetMoveOrderData() MoveOrderData {
 	return o.Data.(MoveOrderData)
+}
+
+// GetJumpOrderData returns the Data order field in JumpOrderData format
+func (o *Order) GetJumpOrderData() JumpOrderData {
+	return o.Data.(JumpOrderData)
 }
 
 // GetKickOrderData returns the Data order field in KickOrderData format
@@ -71,4 +83,31 @@ func (o *Order) UnmarshalJSON(b []byte) error {
 		err = errors.New(fmt.Sprintf("Unknow order type %s", tmp.Type))
 	}
 	return err
+}
+
+func NewMoveOrder(veloticy Physics.Velocity) Order {
+	return Order{
+		Type: MOVE,
+		Data: MoveOrderData{Velocity: veloticy},
+	}
+}
+
+func NewJumpOrder(veloticy Physics.Velocity) Order {
+	return Order{
+		Type: JUMP,
+		Data: JumpOrderData{Velocity: veloticy},
+	}
+}
+
+func NewKickOrder(veloticy Physics.Velocity) Order {
+	return Order{
+		Type: KICK,
+		Data: KickOrderData{Velocity: veloticy},
+	}
+}
+
+func NewCatchOrder() Order {
+	return Order{
+		Type: CATCH,
+	}
 }

@@ -17,7 +17,7 @@ const BaseUnit = 100
 const PlayerSize = 4 * BaseUnit
 
 // PlayerMaxSpeed is the max speed that a play may move  by frame
-const PlayerMaxSpeed = 100
+const PlayerMaxSpeed = 100.0
 
 // CourtWidth is the width of the court (horizontal view)
 const CourtWidth = 200 * BaseUnit
@@ -53,5 +53,8 @@ const GoalMaxY = GoalMinY + GoalWidth
 // GoalZoneRange is the minimal distance that a player can stay from the opponent goal
 const GoalZoneRange = 14 * BaseUnit
 
-// GoalKeeperJumpLength is the distance that the goalkeeper jumps when he executes the order CATCH towards the ball.
-const GoalKeeperJumpLength = 4 * BaseUnit
+// GoalKeeperJumpDuration is the number of turns that the jump takes. A jump cannot be interrupted after has been requested
+const GoalKeeperJumpDuration = 3
+
+// GoalKeeperJumpSpeed is the max speed of the goalkeeper during the jump
+const GoalKeeperJumpSpeed = 3 * PlayerMaxSpeed
