@@ -1,54 +1,74 @@
 package talk
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"github.com/gorilla/websocket"
-	"github.com/makeitplay/commons"
 	"github.com/makeitplay/commons/BasicTypes"
+	"github.com/sirupsen/logrus"
+	"net"
 	"net/http"
 	"net/url"
 	"sync"
 )
 
-// Channel is meant to make the websocket connection and communication easier.
-type Channel struct {
-	ws             *websocket.Conn
-	playerSpec     BasicTypes.PlayerSpecifications
-	urlConnection  url.URL
-	listenerTask   *commons.Task
-	onMessage      func(bytes []byte)
-	connectionOpen bool
-	mu             sync.Mutex
+type Talker interface {
+	Connect(url url.URL, playerSpec BasicTypes.PlayerSpecifications) (ctx context.Context, err error)
+	Send(data []byte) error
+	Close()
 }
 
-// NewTalkChannel creates a new Channel to be used by a player to communicate with the game server
-func NewTalkChannel(url url.URL, playerSpec BasicTypes.PlayerSpecifications) *Channel {
-	c := Channel{}
+// channel is meant to make the websocket connection and communication easier.
+type channel struct {
+	ws               *websocket.Conn
+	playerSpec       BasicTypes.PlayerSpecifications
+	urlConnection    url.URL
+	onMessage        func(bytes []byte)
+	onCloseByPeer    func()
+	connectionCtx    context.Context
+	connectionCloser context.CancelFunc
+	//readingMitx      sync.Mutex
+	writingMitx       sync.Mutex
+	logger            *logrus.Logger
+	connectionOpenned bool
+}
+
+func NewTalker(logger *logrus.Logger, onMessage func(bytes []byte), onCloseByPeer func()) Talker {
+	return &channel{
+		onMessage:     onMessage,
+		onCloseByPeer: onCloseByPeer,
+		logger:        logger,
+	}
+}
+
+func (c *channel) Connect(url url.URL, playerSpec BasicTypes.PlayerSpecifications) (ctx context.Context, err error) {
 	c.playerSpec = playerSpec
 	c.urlConnection = url
-	return &c
+	if err := c.dial(); err != nil {
+		return nil, err
+	}
+	c.connectionCtx, c.connectionCloser = context.WithCancel(context.Background())
+	c.connectionOpenned = true
+	go c.keepListenning()
+
+	return c.connectionCtx, nil
 }
 
 // Send allow the player to send a ws message to the game server
-func (c *Channel) Send(data []byte) error {
+func (c *channel) Send(data []byte) error {
+	c.writingMitx.Lock()
+	defer c.writingMitx.Unlock()
 	return c.ws.WriteMessage(websocket.TextMessage, data)
 }
 
-// OpenConnection opens a new websocket connection and registers the arg function as a listener of the messages sent by the game server
-func (c *Channel) OpenConnection(onMessage func(bytes []byte)) error {
-	c.onMessage = onMessage
-	if err := c.dial(); err != nil {
-		return err
-	}
-	c.connectionOpen = true // please, let me know when gorilla brings a better way to figure out whether the conn is open or not
-	c.defineListenerTask()
-	c.defineWebsocketCloseHandler()
-	c.listenerTask.Start()
-	return nil
+func (c *channel) Close() {
+	c.connectionOpenned = false
+	c.ws.WriteMessage(websocket.CloseNormalClosure, []byte("bye"))
+	c.ws.Close()
 }
 
-func (c *Channel) dial() error {
+func (c *channel) dial() error {
 	connectHeader := http.Header{}
 	specJson, err := json.Marshal(c.playerSpec)
 	if err != nil {
@@ -63,63 +83,31 @@ func (c *Channel) dial() error {
 	return nil
 }
 
-func (c *Channel) defineListenerTask() {
-	c.listenerTask = commons.NewTask(func(task *commons.Task) {
-		defer func() {
-			if err := recover(); err != nil {
-				commons.LogWarning("Connection lost: %s", err)
-			}
-		}()
-
-		c.mu.Lock()
-		defer c.mu.Unlock()
+func (c *channel) keepListenning() {
+	for {
 		msgType, message, err := c.ws.ReadMessage()
-		if msgType == -1 { //normal close request
-			task.RequestStop()
+		if e, ok := err.(*websocket.CloseError); ok {
+			if e.Code == websocket.CloseGoingAway || e.Code == websocket.CloseAbnormalClosure {
+				c.logger.Warnf("Unnexpected connection interruption (%d): %s", msgType, err)
+				c.onCloseByPeer()
+			} else if e.Code == websocket.CloseNormalClosure && c.connectionOpenned {
+				c.logger.Warnf("connection closed by the peer (%d): %s", msgType, err)
+				c.onCloseByPeer()
+			} else {
+				c.logger.Infof("Connection closed by the player (%d): %s", msgType, e)
+			}
+			if c.connectionOpenned { //something close not asked by us
+				c.connectionCloser() //expected
+			}
+			return
+		} else if e, ok := err.(net.Error); ok && c.connectionOpenned {
+			c.logger.Infof("unnexpected connection closed by the player (%d): %s", msgType, e)
 			return
 		} else if err != nil {
-			commons.LogError("Fail reading websocket message (%d): %s", msgType, err)
-			task.RequestStop()
+			c.connectionCloser() //expected
 			return
 		} else {
 			c.onMessage(message)
 		}
-	})
-	c.listenerTask.OnStop = func(task *commons.Task) {
-		if !task.StopRequested() {
-			//@todo implement a recover method to try to connect again when an error is detected
-			commons.LogError("Here is a nice place to implement a recover method")
-			commons.Cleanup(true)
-		}
 	}
-	c.listenerTask.Start()
-}
-
-// CloseConnection ... guess what it does
-func (c *Channel) CloseConnection() {
-	c.listenerTask.RequestStop()
-	if c.connectionOpen { // trying to avoid panic on writing in a closed connection
-		err := c.ws.WriteMessage(websocket.CloseMessage, websocket.FormatCloseMessage(websocket.CloseNormalClosure, ""))
-		if err != nil {
-			commons.LogError("Fail on closing ws connection: %s", err.Error())
-		}
-
-	}
-	c.connectionOpen = false
-	c.ws.Close()
-}
-
-func (c *Channel) defineWebsocketCloseHandler() {
-	c.ws.SetCloseHandler(func(code int, text string) error {
-		wasAlreadyClosed := c.connectionOpen
-		c.connectionOpen = false
-		c.listenerTask.RequestStop()
-		if code == websocket.CloseNormalClosure {
-			commons.Log("Connection closed by the server")
-		} else if !wasAlreadyClosed { //ensure that queued message won't be confunded with error messages
-			commons.LogError("Connection abnormal closed: %d-%s", code, text)
-		}
-
-		return nil
-	})
 }
