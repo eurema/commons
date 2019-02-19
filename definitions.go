@@ -1,9 +1,9 @@
 package commons
 
 import (
-	"github.com/makeitplay/commons/BasicTypes"
-	"github.com/makeitplay/commons/Physics"
-	"github.com/makeitplay/commons/Units"
+	"github.com/makeitplay/arena/BasicTypes"
+	"github.com/makeitplay/arena/Physics"
+	"github.com/makeitplay/arena/units"
 )
 
 const (
@@ -13,19 +13,19 @@ const (
 
 // HomeTeamGoal works as a constant value to help to retrieve a Goal struct with the values of the Home team goal
 var HomeTeamGoal = BasicTypes.Goal{
-	Place:      Units.HomeTeam,
-	Center:     Physics.Point{0, Units.CourtHeight / 2},
-	TopPole:    Physics.Point{0, Units.GoalMaxY},
-	BottomPole: Physics.Point{0, Units.GoalMinY},
+	Place:      units.HomeTeam,
+	Center:     Physics.Point{0, units.CourtHeight / 2},
+	TopPole:    Physics.Point{0, units.GoalMaxY},
+	BottomPole: Physics.Point{0, units.GoalMinY},
 }
 
 // AwayTeamGoal works as a constant value to help to retrieve a Goal struct with the values of the Away team goal
 var AwayTeamGoal = BasicTypes.Goal{
-	Place:      Units.HomeTeam,
-	Center:     Physics.Point{Units.CourtWidth, Units.CourtHeight / 2},
-	TopPole:    Physics.Point{Units.CourtWidth, Units.GoalMaxY},
-	BottomPole: Physics.Point{Units.CourtWidth, Units.GoalMinY},
+	Place:      units.HomeTeam,
+	Center:     Physics.Point{units.CourtWidth, units.CourtHeight / 2},
+	TopPole:    Physics.Point{units.CourtWidth, units.GoalMaxY},
+	BottomPole: Physics.Point{units.CourtWidth, units.GoalMinY},
 }
 
 // CourtCenter works as a constant value to help to retrieve a Point struct with the values of the center of the court
-var CourtCenter = Physics.Point{Units.CourtWidth / 2, Units.CourtHeight / 2}
+var CourtCenter = Physics.Point{units.CourtWidth / 2, units.CourtHeight / 2}

@@ -1,8 +1,8 @@
 package BasicTypes
 
 import (
-	"github.com/makeitplay/commons/Physics"
-	"github.com/makeitplay/commons/Units"
+	"github.com/makeitplay/arena/Physics"
+	"github.com/makeitplay/arena/units"
 )
 
 // MsgType define strings acceptable as types of game msg
@@ -49,7 +49,7 @@ type Goal struct {
 	// Center the is coordinate of the center of the goal
 	Center Physics.Point
 	// Place identifies the team of this goal (the team that should defend this goal)
-	Place Units.TeamPlace
+	Place units.TeamPlace
 	// TopPole is the coordinates of the pole with a higher Y coordinate
 	TopPole Physics.Point
 	// BottomPole is the coordinates of the pole  with a lower Y coordinate

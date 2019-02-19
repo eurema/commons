@@ -1,15 +1,13 @@
 package GameState
 
-import "github.com/makeitplay/commons/BasicTypes"
-
 // State is a game state
-type State BasicTypes.State
+type State string
 
 const (
 	//WaitingTeams game state when the game server is waiting for both team's players connections
 	WaitingTeams State = "waiting"
-	//GetReady game state when the game server is asking the players that a new cycle will start
-	GetReady State = "get-ready"
+	////GetReady game state when the game server is asking the players that a new cycle will start
+	//GetReady State = "get-ready"
 	//Listening game state when the game server is listening the player for orders
 	Listening State = "listening"
 	//Playing game state when the game server is executing the orders sent during the last `listening` state

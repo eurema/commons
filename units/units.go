@@ -1,4 +1,4 @@
-package Units
+package units
 
 // TeamPlace defines a side of the team during the game (left for home team, and right for the away team)
 type TeamPlace string

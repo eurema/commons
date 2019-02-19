@@ -5,7 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/gorilla/websocket"
-	"github.com/makeitplay/commons/BasicTypes"
+	"github.com/makeitplay/arena/BasicTypes"
 	"github.com/sirupsen/logrus"
 	"net"
 	"net/http"
