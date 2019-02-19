@@ -1,7 +1,7 @@
 package BasicTypes
 
 import (
-	"github.com/makeitplay/arena/Physics"
+	"github.com/makeitplay/arena/physics"
 	"github.com/makeitplay/arena/units"
 )
 
@@ -37,7 +37,7 @@ type PlayerSpecifications struct {
 	// Number identifies the number of the player in its team
 	Number PlayerNumber `json:"number"`
 	// InitialCoords identifies where default initial player's position is
-	InitialCoords Physics.Point `json:"initial_coords"`
+	InitialCoords physics.Point `json:"initial_coords"`
 	// Token should be passed as an argument to the player to ensure that the connection is being openned by the expected process
 	Token string `json:"token"`
 	// ProtocolVersion identifies the game server communication version the player is compatible with (e.g. 1.0)
@@ -47,11 +47,11 @@ type PlayerSpecifications struct {
 // Goal is a set of value about a goal from a team
 type Goal struct {
 	// Center the is coordinate of the center of the goal
-	Center Physics.Point
+	Center physics.Point
 	// Place identifies the team of this goal (the team that should defend this goal)
 	Place units.TeamPlace
 	// TopPole is the coordinates of the pole with a higher Y coordinate
-	TopPole Physics.Point
+	TopPole physics.Point
 	// BottomPole is the coordinates of the pole  with a lower Y coordinate
-	BottomPole Physics.Point
+	BottomPole physics.Point
 }

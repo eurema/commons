@@ -1,4 +1,4 @@
-package Physics
+package physics
 
 import (
 	"github.com/stretchr/testify/assert"
