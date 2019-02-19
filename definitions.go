@@ -1,4 +1,4 @@
-package commons
+package arena
 
 import (
 	"github.com/makeitplay/arena/BasicTypes"

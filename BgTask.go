@@ -1,4 +1,4 @@
-package commons
+package arena
 
 // thanks https://medium.com/@matryer/stopping-goroutines-golang-1bf28799c1cb
 
