@@ -30,11 +30,11 @@ type channel struct {
 	connectionCloser context.CancelFunc
 	//readingMitx      sync.Mutex
 	writingMitx       sync.Mutex
-	logger            *logrus.Logger
+	logger            *logrus.Entry
 	connectionOpenned bool
 }
 
-func NewTalker(logger *logrus.Logger, onMessage func(bytes []byte), onCloseByPeer func()) Talker {
+func NewTalker(logger *logrus.Entry, onMessage func(bytes []byte), onCloseByPeer func()) Talker {
 	return &channel{
 		onMessage:     onMessage,
 		onCloseByPeer: onCloseByPeer,
@@ -88,23 +88,22 @@ func (c *channel) keepListenning() {
 		msgType, message, err := c.ws.ReadMessage()
 		if e, ok := err.(*websocket.CloseError); ok {
 			if e.Code == websocket.CloseGoingAway || e.Code == websocket.CloseAbnormalClosure {
-				c.logger.Warnf("Unnexpected connection interruption (%d): %s", msgType, err)
 				c.onCloseByPeer()
 			} else if e.Code == websocket.CloseNormalClosure && c.connectionOpenned {
-				c.logger.Warnf("connection closed by the peer (%d): %s", msgType, err)
 				c.onCloseByPeer()
 			} else {
 				c.logger.Infof("Connection closed by the player (%d): %s", msgType, e)
 			}
 			if c.connectionOpenned { //something close not asked by us
-				c.connectionCloser() //expected
+				c.connectionCloser() //unexpected
 			}
 			return
 		} else if e, ok := err.(net.Error); ok && c.connectionOpenned {
-			c.logger.Infof("unnexpected connection closed by the player (%d): %s", msgType, e)
+			c.connectionCloser() //unexpected
+			c.logger.Infof("unnexpected connection closed (%d): %s", msgType, e)
 			return
 		} else if err != nil {
-			c.connectionCloser() //expected
+			c.connectionCloser() //unexpected
 			return
 		} else {
 			c.onMessage(message)
