@@ -3,7 +3,7 @@ package talk
 import (
 	"context"
 	"github.com/gorilla/websocket"
-	"github.com/makeitplay/arena/BasicTypes"
+	"github.com/makeitplay/arena"
 	"github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/assert"
 	"net/http"
@@ -50,7 +50,6 @@ func TestTalker_Connection(t *testing.T) {
 	wsUrl, _ := url.Parse(u)
 
 	logger := logrus.New()
-	logger.WithField("test", "a")
 
 	msgTeste := "a-nice-msg"
 	msgReceived := ""
@@ -64,9 +63,9 @@ func TestTalker_Connection(t *testing.T) {
 
 	}
 
-	myTalker := NewTalker(logger, onMsg, onClose)
+	myTalker := NewTalker(logger.WithField("test", "a"), onMsg, onClose)
 
-	_, err := myTalker.Connect(*wsUrl, BasicTypes.PlayerSpecifications{})
+	_, err := myTalker.Connect(*wsUrl, arena.PlayerSpecifications{})
 	assert.Nil(t, err)
 	myTalker.Send([]byte(msgTeste))
 
@@ -89,7 +88,6 @@ func TestTalker_ClosingConnection(t *testing.T) {
 	wsUrl, _ := url.Parse(u)
 
 	logger := logrus.New()
-	logger.WithField("test", "a")
 
 	onMsg := func(bytes []byte) {}
 
@@ -97,9 +95,9 @@ func TestTalker_ClosingConnection(t *testing.T) {
 		assert.Fail(t, "should not be called when the connection is closed by the player")
 	}
 
-	myTalker := NewTalker(logger, onMsg, onClose)
+	myTalker := NewTalker(logger.WithField("test", "a"), onMsg, onClose)
 
-	connectionCtx, err := myTalker.Connect(*wsUrl, BasicTypes.PlayerSpecifications{})
+	connectionCtx, err := myTalker.Connect(*wsUrl, arena.PlayerSpecifications{})
 	assert.Nil(t, err)
 	myTalker.Close()
 	select {
@@ -120,7 +118,6 @@ func TestTalker_UnnexpectedConnectionClosed(t *testing.T) {
 	wsUrl, _ := url.Parse(u)
 
 	logger := logrus.New()
-	logger.WithField("test", "a")
 
 	onMsg := func(bytes []byte) {}
 
@@ -129,9 +126,9 @@ func TestTalker_UnnexpectedConnectionClosed(t *testing.T) {
 		onCloseWasCalled = true
 	}
 
-	myTalker := NewTalker(logger, onMsg, onClose)
+	myTalker := NewTalker(logger.WithField("test", "a"), onMsg, onClose)
 
-	connectionCtx, err := myTalker.Connect(*wsUrl, BasicTypes.PlayerSpecifications{})
+	connectionCtx, err := myTalker.Connect(*wsUrl, arena.PlayerSpecifications{})
 	assert.Nil(t, err)
 	go func() {
 		serverTestConnections[connectionName].Close()

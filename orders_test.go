@@ -1,4 +1,4 @@
-package BasicTypes
+package arena
 
 import (
 	"encoding/json"
@@ -31,13 +31,13 @@ func TestMarshalMoveOrder(t *testing.T) {
 	if err != nil {
 		t.Errorf("Fail on marshal order: %s", err.Error())
 	} else {
-		expected := "{\"order\":\"MOVE\",\"data\":{\"velocity\":{\"direction\":{\"x\":5,\"y\":-14},\"speed\":50}}}"
+		expected := "{\"order\":\"MOVE\",\"data\":{\"velocity\":{\"direction\":{\"ang\":-70.3461759419467,\"x\":5,\"y\":-14},\"speed\":50}}}"
 		assert.Equal(t, expected, string(cont))
 	}
 }
 
 func TestUnmarshalMoveOrder(t *testing.T) {
-	input := []byte("{\"order\":\"MOVE\",\"data\":{\"velocity\":{\"direction\":{\"x\":5,\"y\":-14},\"speed\":50}}}")
+	input := []byte("{\"order\":\"MOVE\",\"data\":{\"velocity\":{\"direction\":{\"ang\":-70.3461759419467,\"x\":5,\"y\":-14},\"speed\":50}}}")
 	var order Order
 	err := json.Unmarshal(input, &order)
 	if err != nil {
@@ -57,13 +57,13 @@ func TestMarshalKickOrder(t *testing.T) {
 	if err != nil {
 		t.Errorf("Fail on marshal order: %s", err.Error())
 	} else {
-		expected := "{\"order\":\"KICK\",\"data\":{\"velocity\":{\"direction\":{\"x\":5,\"y\":-14},\"speed\":50}}}"
+		expected := "{\"order\":\"KICK\",\"data\":{\"velocity\":{\"direction\":{\"ang\":-70.3461759419467,\"x\":5,\"y\":-14},\"speed\":50}}}"
 		assert.Equal(t, expected, string(cont))
 	}
 }
 
 func TestUnmarshalKickOrder(t *testing.T) {
-	input := []byte("{\"order\":\"KICK\",\"data\":{\"velocity\":{\"direction\":{\"x\":5,\"y\":-14},\"speed\":50}}}")
+	input := []byte("{\"order\":\"KICK\",\"data\":{\"velocity\":{\"direction\":{\"ang\":-70.3461759419467,\"x\":5,\"y\":-14},\"speed\":50}}}")
 	var order Order
 	err := json.Unmarshal(input, &order)
 	if err != nil {

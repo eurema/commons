@@ -21,11 +21,8 @@ func RegisterCleaner(name string, callback func(bool)) {
 
 // Cleanup executes all cleaner functions in the stack passing the arg that tells if the process was interrupted or not
 func Cleanup(interrupted bool) {
-	LogNotice("Cleaning up")
 	for _, cleaner := range cleanerStack {
-		LogInfo("Closing: %s", cleaner.name)
 		cleaner.callback(interrupted)
 	}
-	LogNotice("-- All cleaners done -- ")
 	color.Unset()
 }

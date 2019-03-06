@@ -1,14 +1,5 @@
 package units
 
-// TeamPlace defines a side of the team during the game (left for home team, and right for the away team)
-type TeamPlace string
-
-// HomeTeam identify the home team
-const HomeTeam TeamPlace = "home"
-
-// AwayTeam identify the home team
-const AwayTeam TeamPlace = "away"
-
 // BaseUnit is used to increase the integer units scale and improve the precision when the integer numbers
 // come from float  calculations. Some units have to be integer to avoid infinite intervals (e.g. a point in the field, element sizes)
 const BaseUnit = 100

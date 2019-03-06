@@ -1,4 +1,4 @@
-package BasicTypes
+package arena
 
 import (
 	"encoding/json"

@@ -1,9 +1,17 @@
-package BasicTypes
+package arena
 
 import (
 	"github.com/makeitplay/arena/physics"
-	"github.com/makeitplay/arena/units"
 )
+
+// TeamPlace defines a side of the team during the game (left for home team, and right for the away team)
+type TeamPlace string
+
+// HomeTeam identify the home team
+const HomeTeam TeamPlace = "home"
+
+// AwayTeam identify the home team
+const AwayTeam TeamPlace = "away"
 
 // MsgType define strings acceptable as types of game msg
 type MsgType string
@@ -29,9 +37,6 @@ const (
 	WELCOME MsgType = "welcome"
 )
 
-// State identifies game states
-type State string
-
 // PlayerSpecifications is the object that should be present in the HTTP websocket headers connection open by the player with the game server
 type PlayerSpecifications struct {
 	// Number identifies the number of the player in its team
@@ -49,7 +54,7 @@ type Goal struct {
 	// Center the is coordinate of the center of the goal
 	Center physics.Point
 	// Place identifies the team of this goal (the team that should defend this goal)
-	Place units.TeamPlace
+	Place TeamPlace
 	// TopPole is the coordinates of the pole with a higher Y coordinate
 	TopPole physics.Point
 	// BottomPole is the coordinates of the pole  with a lower Y coordinate
