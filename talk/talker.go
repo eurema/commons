@@ -5,7 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/gorilla/websocket"
-	"github.com/makeitplay/commons/BasicTypes"
+	"github.com/makeitplay/arena"
 	"github.com/sirupsen/logrus"
 	"net"
 	"net/http"
@@ -14,7 +14,7 @@ import (
 )
 
 type Talker interface {
-	Connect(url url.URL, playerSpec BasicTypes.PlayerSpecifications) (ctx context.Context, err error)
+	Connect(url url.URL, playerSpec arena.PlayerSpecifications) (ctx context.Context, err error)
 	Send(data []byte) error
 	Close()
 }
@@ -22,7 +22,7 @@ type Talker interface {
 // channel is meant to make the websocket connection and communication easier.
 type channel struct {
 	ws               *websocket.Conn
-	playerSpec       BasicTypes.PlayerSpecifications
+	playerSpec       arena.PlayerSpecifications
 	urlConnection    url.URL
 	onMessage        func(bytes []byte)
 	onCloseByPeer    func()
@@ -42,7 +42,7 @@ func NewTalker(logger *logrus.Entry, onMessage func(bytes []byte), onCloseByPeer
 	}
 }
 
-func (c *channel) Connect(url url.URL, playerSpec BasicTypes.PlayerSpecifications) (ctx context.Context, err error) {
+func (c *channel) Connect(url url.URL, playerSpec arena.PlayerSpecifications) (ctx context.Context, err error) {
 	c.playerSpec = playerSpec
 	c.urlConnection = url
 	if err := c.dial(); err != nil {

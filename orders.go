@@ -1,9 +1,9 @@
-package BasicTypes
+package arena
 
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/makeitplay/commons/Physics"
+	"github.com/makeitplay/arena/physics"
 	"github.com/pkg/errors"
 )
 
@@ -15,17 +15,17 @@ type Order struct {
 
 // MoveOrderData is the expected format of the data field of an order when it's type is MOVE
 type MoveOrderData struct {
-	Velocity Physics.Velocity `json:"velocity"`
+	Velocity physics.Velocity `json:"velocity"`
 }
 
 // KickOrderData is the expected format of the data field of an order when it's type is KICK
 type KickOrderData struct {
-	Velocity Physics.Velocity `json:"velocity"`
+	Velocity physics.Velocity `json:"velocity"`
 }
 
 // JumpOrderData is the expected format of the data field of an order when it's type is Jump
 type JumpOrderData struct {
-	Velocity Physics.Velocity `json:"velocity"`
+	Velocity physics.Velocity `json:"velocity"`
 }
 
 const (
@@ -85,21 +85,21 @@ func (o *Order) UnmarshalJSON(b []byte) error {
 	return err
 }
 
-func NewMoveOrder(veloticy Physics.Velocity) Order {
+func NewMoveOrder(veloticy physics.Velocity) Order {
 	return Order{
 		Type: MOVE,
 		Data: MoveOrderData{Velocity: veloticy},
 	}
 }
 
-func NewJumpOrder(veloticy Physics.Velocity) Order {
+func NewJumpOrder(veloticy physics.Velocity) Order {
 	return Order{
 		Type: JUMP,
 		Data: JumpOrderData{Velocity: veloticy},
 	}
 }
 
-func NewKickOrder(veloticy Physics.Velocity) Order {
+func NewKickOrder(veloticy physics.Velocity) Order {
 	return Order{
 		Type: KICK,
 		Data: KickOrderData{Velocity: veloticy},

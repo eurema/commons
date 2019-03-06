@@ -1,4 +1,4 @@
-package Physics
+package physics
 
 import (
 	"encoding/json"

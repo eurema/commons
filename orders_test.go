@@ -1,14 +1,14 @@
-package BasicTypes
+package arena
 
 import (
 	"encoding/json"
-	"github.com/makeitplay/commons/Physics"
+	"github.com/makeitplay/arena/physics"
 	"github.com/stretchr/testify/assert"
 	"testing"
 )
 
-func createMoveOrder(from Physics.Point, to Physics.Point, speed float64) Order {
-	vec := Physics.NewZeroedVelocity(*Physics.NewVector(from, to))
+func createMoveOrder(from physics.Point, to physics.Point, speed float64) Order {
+	vec := physics.NewZeroedVelocity(*physics.NewVector(from, to))
 	vec.Speed = speed
 	return Order{
 		Type: MOVE,
@@ -16,8 +16,8 @@ func createMoveOrder(from Physics.Point, to Physics.Point, speed float64) Order 
 	}
 }
 
-func createKickOrder(from Physics.Point, to Physics.Point, speed float64) Order {
-	vec := Physics.NewZeroedVelocity(*Physics.NewVector(from, to))
+func createKickOrder(from physics.Point, to physics.Point, speed float64) Order {
+	vec := physics.NewZeroedVelocity(*physics.NewVector(from, to))
 	vec.Speed = speed
 	return Order{
 		Type: KICK,
@@ -26,18 +26,18 @@ func createKickOrder(from Physics.Point, to Physics.Point, speed float64) Order 
 }
 
 func TestMarshalMoveOrder(t *testing.T) {
-	order := createMoveOrder(Physics.Point{}, Physics.Point{PosX: 5, PosY: -14}, 50)
+	order := createMoveOrder(physics.Point{}, physics.Point{PosX: 5, PosY: -14}, 50)
 	cont, err := json.Marshal(order)
 	if err != nil {
 		t.Errorf("Fail on marshal order: %s", err.Error())
 	} else {
-		expected := "{\"order\":\"MOVE\",\"data\":{\"velocity\":{\"direction\":{\"x\":5,\"y\":-14},\"speed\":50}}}"
+		expected := "{\"order\":\"MOVE\",\"data\":{\"velocity\":{\"direction\":{\"ang\":-70.3461759419467,\"x\":5,\"y\":-14},\"speed\":50}}}"
 		assert.Equal(t, expected, string(cont))
 	}
 }
 
 func TestUnmarshalMoveOrder(t *testing.T) {
-	input := []byte("{\"order\":\"MOVE\",\"data\":{\"velocity\":{\"direction\":{\"x\":5,\"y\":-14},\"speed\":50}}}")
+	input := []byte("{\"order\":\"MOVE\",\"data\":{\"velocity\":{\"direction\":{\"ang\":-70.3461759419467,\"x\":5,\"y\":-14},\"speed\":50}}}")
 	var order Order
 	err := json.Unmarshal(input, &order)
 	if err != nil {
@@ -52,18 +52,18 @@ func TestUnmarshalMoveOrder(t *testing.T) {
 }
 
 func TestMarshalKickOrder(t *testing.T) {
-	order := createKickOrder(Physics.Point{}, Physics.Point{PosX: 5, PosY: -14}, 50)
+	order := createKickOrder(physics.Point{}, physics.Point{PosX: 5, PosY: -14}, 50)
 	cont, err := json.Marshal(order)
 	if err != nil {
 		t.Errorf("Fail on marshal order: %s", err.Error())
 	} else {
-		expected := "{\"order\":\"KICK\",\"data\":{\"velocity\":{\"direction\":{\"x\":5,\"y\":-14},\"speed\":50}}}"
+		expected := "{\"order\":\"KICK\",\"data\":{\"velocity\":{\"direction\":{\"ang\":-70.3461759419467,\"x\":5,\"y\":-14},\"speed\":50}}}"
 		assert.Equal(t, expected, string(cont))
 	}
 }
 
 func TestUnmarshalKickOrder(t *testing.T) {
-	input := []byte("{\"order\":\"KICK\",\"data\":{\"velocity\":{\"direction\":{\"x\":5,\"y\":-14},\"speed\":50}}}")
+	input := []byte("{\"order\":\"KICK\",\"data\":{\"velocity\":{\"direction\":{\"ang\":-70.3461759419467,\"x\":5,\"y\":-14},\"speed\":50}}}")
 	var order Order
 	err := json.Unmarshal(input, &order)
 	if err != nil {
