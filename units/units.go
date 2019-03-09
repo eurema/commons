@@ -10,11 +10,11 @@ const PlayerSize = 4 * BaseUnit
 // PlayerMaxSpeed is the max speed that a play may move  by frame
 const PlayerMaxSpeed = 100.0
 
-// CourtWidth is the width of the court (horizontal view)
-const CourtWidth = 200 * BaseUnit
+// FieldWidth is the width of the field (horizontal view)
+const FieldWidth = 200 * BaseUnit
 
-// CourtHeight is the height of the court (horizontal view)
-const CourtHeight = 100 * BaseUnit
+// FieldHeight is the height of the field (horizontal view)
+const FieldHeight = 100 * BaseUnit
 
 // BallSize size of the element ball
 const BallSize = 2 * BaseUnit
@@ -36,7 +36,7 @@ const BallTimeInGoalZone = 15
 const GoalWidth = 30 * BaseUnit
 
 // GoalMinY is the coordinate Y of the lower pole of the goals
-const GoalMinY = (CourtHeight - GoalWidth) / 2
+const GoalMinY = (FieldHeight - GoalWidth) / 2
 
 // GoalMaxY is the coordinate Y of the upper pole of the goals
 const GoalMaxY = GoalMinY + GoalWidth

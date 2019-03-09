@@ -53,23 +53,20 @@ func TestTalker_Connection(t *testing.T) {
 
 	msgTeste := "a-nice-msg"
 	msgReceived := ""
-	ctxWaitALittle, ack := context.WithTimeout(context.Background(), 200*time.Millisecond)
-	onMsg := func(bytes []byte) {
-		msgReceived = string(bytes)
-		ack()
-	}
 
-	onClose := func() {
-
-	}
-
-	myTalker := NewTalker(logger.WithField("test", "a"), onMsg, onClose)
+	myTalker := NewTalker(logger.WithField("test", "a"))
 
 	_, err := myTalker.Connect(*wsUrl, arena.PlayerSpecifications{})
 	assert.Nil(t, err)
 	myTalker.Send([]byte(msgTeste))
 
+	ctxWaitALittle, ack := context.WithTimeout(context.Background(), 200*time.Millisecond)
 	select {
+	case newMsg := <-myTalker.Listen():
+		msgReceived = string(newMsg)
+		ack()
+	case err := <-myTalker.ListenInterruption():
+		assert.Fail(t, err.Text)
 	case <-ctxWaitALittle.Done():
 
 	}
@@ -89,23 +86,22 @@ func TestTalker_ClosingConnection(t *testing.T) {
 
 	logger := logrus.New()
 
-	onMsg := func(bytes []byte) {}
-
-	onClose := func() {
-		assert.Fail(t, "should not be called when the connection is closed by the player")
-	}
-
-	myTalker := NewTalker(logger.WithField("test", "a"), onMsg, onClose)
+	myTalker := NewTalker(logger.WithField("test", "a"))
 
 	connectionCtx, err := myTalker.Connect(*wsUrl, arena.PlayerSpecifications{})
 	assert.Nil(t, err)
 	myTalker.Close()
+
 	select {
+	case <-myTalker.Listen():
+		assert.Fail(t, "should not be called when the connection is closed by the player")
+	case <-myTalker.ListenInterruption():
+		assert.Fail(t, "should not be called when the connection is closed by the player")
 	case <-connectionCtx.Done():
 		assert.Equal(t, context.Canceled, connectionCtx.Err(), "should receive a closing message")
-
 	}
 }
+
 func TestTalker_UnnexpectedConnectionClosed(t *testing.T) {
 	connectionName := "unnexpected-clossed-1-test"
 	// Create test server with the echo handler.
@@ -119,21 +115,20 @@ func TestTalker_UnnexpectedConnectionClosed(t *testing.T) {
 
 	logger := logrus.New()
 
-	onMsg := func(bytes []byte) {}
-
-	onCloseWasCalled := false
-	onClose := func() {
-		onCloseWasCalled = true
-	}
-
-	myTalker := NewTalker(logger.WithField("test", "a"), onMsg, onClose)
+	myTalker := NewTalker(logger.WithField("test", "a"))
 
 	connectionCtx, err := myTalker.Connect(*wsUrl, arena.PlayerSpecifications{})
 	assert.Nil(t, err)
 	go func() {
 		serverTestConnections[connectionName].Close()
 	}()
+
+	onCloseWasCalled := false
 	select {
+	case <-myTalker.Listen():
+		assert.Fail(t, "should not be called when the connection is closed by the player")
+	case <-myTalker.ListenInterruption():
+		onCloseWasCalled = true
 	case <-connectionCtx.Done():
 		assert.Equal(t, context.Canceled, connectionCtx.Err(), "should receive a closing message")
 	}
