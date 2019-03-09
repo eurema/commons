@@ -16,26 +16,8 @@ const AwayTeam TeamPlace = "away"
 // MsgType define strings acceptable as types of game msg
 type MsgType string
 
-// OrderType identifies types of orders that are acceptable by the game server
-type OrderType string
-
 // PlayerNumber identifies values for players number
 type PlayerNumber string
-
-const (
-	// ORDER is the msg sent from the player to the game server
-	ORDER MsgType = "order"
-	// ANNOUNCEMENT is sent from the game server to the players and to the web clients to update them with a new game state
-	ANNOUNCEMENT MsgType = "announcement"
-	// DEBUG is a message sent by http POST request from the web client to the game server (debug mode must be on)
-	DEBUG MsgType = "debug"
-	// SCORE is a message sent by the game server when the score was changed
-	SCORE MsgType = "score"
-	// RIP is a message sent by the game server when the game server crashes
-	RIP MsgType = "rip"
-	// WELCOME is a message sent by the game server to each player when the new websocket connection is accepted.
-	WELCOME MsgType = "welcome"
-)
 
 // PlayerSpecifications is the object that should be present in the HTTP websocket headers connection open by the player with the game server
 type PlayerSpecifications struct {
