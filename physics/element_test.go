@@ -124,7 +124,7 @@ func TestElement_VectorCollides(t *testing.T) {
 	//radios: 7.07
 	var collisionPoint *Point
 
-	vecA := NewVector(Point{}, Point{12, 0})
+	vecA, _ := NewVector(Point{}, Point{12, 0})
 
 	// no collision horizontal
 	assert.Nil(t, element.VectorCollides(*vecA, Point{-20, 0}, 0.0))
@@ -153,7 +153,7 @@ func TestElement_VectorCollides(t *testing.T) {
 	//
 	element.Coords = Point{20, 20}
 
-	vecB := NewVector(Point{}, Point{10, 10})
+	vecB, _ := NewVector(Point{}, Point{10, 10})
 	vecB.SetLength(50)
 
 	collisionPoint = element.VectorCollides(*vecB, Point{0, 0}, 0.0)
@@ -161,15 +161,18 @@ func TestElement_VectorCollides(t *testing.T) {
 }
 
 func TestElement_HasCollided(t *testing.T) {
+	vecA, _ := NewVector(Point{}, Point{1, 0})
 	elementA := Element{
 		Size:     9,
 		Coords:   Point{},
-		Velocity: NewZeroedVelocity(*NewVector(Point{}, Point{1, 0}).Normalize()),
+		Velocity: NewZeroedVelocity(*vecA.Normalize()),
 	}
+
+	vecB, _ := NewVector(Point{}, Point{1, 0})
 	elementB := Element{
 		Size:     12,
 		Coords:   Point{PosX: 50},
-		Velocity: NewZeroedVelocity(*NewVector(Point{}, Point{1, 0}).Normalize())}
+		Velocity: NewZeroedVelocity(*vecB.Normalize())}
 
 	elementsBodySpace := float64(elementB.Size+elementA.Size) / 2
 

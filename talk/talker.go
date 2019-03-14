@@ -14,7 +14,7 @@ import (
 )
 
 type Talker interface {
-	Connect(url url.URL, playerSpec arena.PlayerSpecifications) (ctx context.Context, err error)
+	Connect(mainCtx context.Context, url url.URL, playerSpec arena.PlayerSpecifications) (ctx context.Context, err error)
 	Send(data []byte) error
 	Listen() <-chan []byte
 	ListenInterruption() <-chan *websocket.CloseError
@@ -45,16 +45,22 @@ func NewTalker(logger *logrus.Entry) Talker {
 }
 
 // Connect tries to open a new web socket connection with the game server
-func (c *channel) Connect(url url.URL, playerSpec arena.PlayerSpecifications) (ctx context.Context, err error) {
+func (c *channel) Connect(mainCtx context.Context, url url.URL, playerSpec arena.PlayerSpecifications) (ctx context.Context, err error) {
 	c.playerSpec = playerSpec
 	c.urlConnection = url
 	if err := c.dial(); err != nil {
 		return nil, err
 	}
-	c.connectionCtx, c.connectionCloser = context.WithCancel(context.Background())
+	c.connectionCtx, c.connectionCloser = context.WithCancel(mainCtx)
 	c.connectionOpenned = true
 	go c.keepListenning()
 
+	go func() {
+		select {
+		case <-mainCtx.Done():
+			c.Close()
+		}
+	}()
 	return c.connectionCtx, nil
 }
 

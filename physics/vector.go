@@ -2,6 +2,7 @@ package physics
 
 import (
 	"encoding/json"
+	"errors"
 	"math"
 )
 
@@ -10,18 +11,27 @@ type Vector struct {
 	y float64
 }
 
-func NewVector(from Point, to Point) *Vector {
+func NewVector(from Point, to Point) (*Vector, error) {
 	v := new(Vector)
 	v.x = float64(to.PosX) - float64(from.PosX)
 	v.y = float64(to.PosY) - float64(from.PosY)
-	v.panicIfZeroLength()
-	return v
+	if err := v.isValidCoords(v.x, v.y); err != nil {
+		return nil, err
+	}
+	return v, nil
 }
 
 func (v Vector) Copy() *Vector {
 	nv := new(Vector)
 	nv.x = v.x
 	nv.y = v.y
+	return nv
+}
+
+func (v Vector) Perpendicular() *Vector {
+	nv := new(Vector)
+	nv.x = v.y
+	nv.y = -v.x
 	return nv
 }
 
@@ -44,6 +54,9 @@ func (v *Vector) UnmarshalJSON(b []byte) error {
 	}
 	v.x = tmp.X
 	v.y = tmp.Y
+	if err := v.isValidCoords(v.x, v.y); err != nil {
+		return err
+	}
 	return nil
 }
 
@@ -55,24 +68,28 @@ func (v *Vector) Normalize() *Vector {
 	return v
 }
 
-func (v *Vector) SetLength(length float64) *Vector {
+func (v *Vector) SetLength(length float64) (*Vector, error) {
 	if length == 0 {
-		panic("vector can not have zero length")
+		return nil, errors.New("vector can not have zero length")
 	}
 	v.Scale(length / v.Length())
-	return v
+	return v, nil
 }
 
-func (v *Vector) SetX(x float64) *Vector {
+func (v *Vector) SetX(x float64) (*Vector, error) {
+	if err := v.isValidCoords(x, v.y); err != nil {
+		return nil, err
+	}
 	v.x = x
-	v.panicIfZeroLength()
-	return v
+	return v, nil
 }
 
-func (v *Vector) SetY(y float64) *Vector {
+func (v *Vector) SetY(y float64) (*Vector, error) {
+	if err := v.isValidCoords(v.x, y); err != nil {
+		return nil, err
+	}
 	v.y = y
-	v.panicIfZeroLength()
-	return v
+	return v, nil
 }
 
 func (v *Vector) Invert() *Vector {
@@ -81,13 +98,13 @@ func (v *Vector) Invert() *Vector {
 	return v
 }
 
-func (v *Vector) Scale(t float64) *Vector {
+func (v *Vector) Scale(t float64) (*Vector, error) {
 	if t == 0 {
-		panic("vector can not have zero length")
+		return nil, errors.New("vector can not have zero length")
 	}
 	v.x *= t
 	v.y *= t
-	return v
+	return v, nil
 }
 
 func (v *Vector) Sin() float64 {
@@ -125,18 +142,26 @@ func (v *Vector) Length() float64 {
 	return math.Hypot(v.x, v.y)
 }
 
-func (v *Vector) Add(vector *Vector) *Vector {
-	v.x += vector.x
-	v.y += vector.y
-	v.panicIfZeroLength()
-	return v
+func (v *Vector) Add(vector *Vector) (*Vector, error) {
+	x := v.x + vector.x
+	y := v.y + vector.y
+	if err := v.isValidCoords(x, y); err != nil {
+		return nil, err
+	}
+	v.x = x
+	v.y = y
+	return v, nil
 }
 
-func (v *Vector) Sub(vector *Vector) *Vector {
-	v.x -= vector.x
-	v.y -= vector.y
-	v.panicIfZeroLength()
-	return v
+func (v *Vector) Sub(vector *Vector) (*Vector, error) {
+	x := v.x - vector.x
+	y := v.y - vector.y
+	if err := v.isValidCoords(x, y); err != nil {
+		return nil, err
+	}
+	v.x = x
+	v.y = y
+	return v, nil
 }
 
 func (v *Vector) TargetFrom(point Point) Point {
@@ -180,8 +205,9 @@ func (v *Vector) IsObstacle(from Point, obstacle Point) bool {
 	return math.Round(a+b-hypo) < 0.1
 }
 
-func (v *Vector) panicIfZeroLength() {
-	if v.x == 0 && v.y == 0 {
-		panic("vector can not have zero length")
+func (v *Vector) isValidCoords(x, y float64) error {
+	if x == 0 && y == 0 {
+		return errors.New("vector can not have zero length")
 	}
+	return nil
 }

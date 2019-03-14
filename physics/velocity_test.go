@@ -7,10 +7,16 @@ import (
 )
 
 func TestVector_Add(t *testing.T) {
-	velA := NewZeroedVelocity(*NewVector(Point{0, 0}, Point{1, 0}).Normalize())
-	velB := NewZeroedVelocity(*NewVector(Point{0, 0}, Point{1, 0}).Normalize())
-	velC := NewZeroedVelocity(*NewVector(Point{0, 0}, Point{-1, 0}).Normalize())
-	velD := NewZeroedVelocity(*NewVector(Point{0, 0}, Point{0, 1}).Normalize())
+
+	vectorA, _ := NewVector(Point{0, 0}, Point{1, 0})
+	vectorB, _ := NewVector(Point{0, 0}, Point{1, 0})
+	vectorC, _ := NewVector(Point{0, 0}, Point{-1, 0})
+	vectorD, _ := NewVector(Point{0, 0}, Point{0, 1})
+
+	velA := NewZeroedVelocity(*vectorA.Normalize())
+	velB := NewZeroedVelocity(*vectorB.Normalize())
+	velC := NewZeroedVelocity(*vectorC.Normalize())
+	velD := NewZeroedVelocity(*vectorD.Normalize())
 
 	velA.Speed = 100
 	velB.Speed = 100
