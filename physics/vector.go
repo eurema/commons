@@ -6,6 +6,17 @@ import (
 	"math"
 )
 
+var (
+	North     = Vector{y: 1}
+	South     = Vector{y: -1}
+	East      = Vector{x: 1}
+	West      = Vector{x: -1}
+	NorthEast = Vector{y: 1, x: 1}
+	SouthEast = Vector{y: -1, x: 1}
+	NorthWest = Vector{y: 1, x: -1}
+	SouthWest = Vector{y: -1, x: -1}
+)
+
 type Vector struct {
 	x float64
 	y float64

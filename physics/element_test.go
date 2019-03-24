@@ -1,6 +1,7 @@
 package physics
 
 import (
+	"github.com/makeitplay/arena/units"
 	"github.com/stretchr/testify/assert"
 	"math"
 	"testing"
@@ -158,6 +159,23 @@ func TestElement_VectorCollides(t *testing.T) {
 
 	collisionPoint = element.VectorCollides(*vecB, Point{0, 0}, 0.0)
 	assert.Equal(t, &Point{16, 16}, collisionPoint)
+}
+
+func TestElement_PointBehindOirgin(t *testing.T) {
+
+	zaga := Element{}
+	zaga.Size = units.PlayerSize
+	zaga.Coords = Point{16437, 4945}
+
+	vecA := &Vector{
+		x: 3228,
+		y: -1252,
+	}
+
+	origin := Point{16772, 4952}
+
+	// no collision horizontal
+	assert.Nil(t, zaga.VectorCollides(*vecA, origin, units.BallSize))
 }
 
 func TestElement_HasCollided(t *testing.T) {
