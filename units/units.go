@@ -16,6 +16,9 @@ const FieldWidth = 200 * BaseUnit
 // FieldHeight is the height of the field (horizontal view)
 const FieldHeight = 100 * BaseUnit
 
+// FieldNeutralCenter is the radius of the neutral circle on the center of the field
+const FieldNeutralCenter = 100
+
 // BallSize size of the element ball
 const BallSize = 2 * BaseUnit
 
