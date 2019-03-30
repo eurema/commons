@@ -51,4 +51,4 @@ const GoalZoneRange = 14 * BaseUnit
 const GoalKeeperJumpDuration = 3
 
 // GoalKeeperJumpSpeed is the max speed of the goalkeeper during the jump
-const GoalKeeperJumpSpeed = 3 * PlayerMaxSpeed
+const GoalKeeperJumpSpeed = 2 * PlayerMaxSpeed
