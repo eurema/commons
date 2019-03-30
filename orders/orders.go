@@ -73,6 +73,10 @@ func (o *Order) UnmarshalJSON(b []byte) error {
 		var mov MoveOrderData
 		err = json.Unmarshal(tmp.Data, &mov)
 		o.Data = mov
+	case tmp.Type == JUMP:
+		var jump JumpOrderData
+		err = json.Unmarshal(tmp.Data, &jump)
+		o.Data = jump
 	case tmp.Type == KICK:
 		var mov KickOrderData
 		err = json.Unmarshal(tmp.Data, &mov)

@@ -53,23 +53,20 @@ func TestTalker_Connection(t *testing.T) {
 
 	msgTeste := "a-nice-msg"
 	msgReceived := ""
-	ctxWaitALittle, ack := context.WithTimeout(context.Background(), 200*time.Millisecond)
-	onMsg := func(bytes []byte) {
-		msgReceived = string(bytes)
-		ack()
-	}
 
-	onClose := func() {
-
-	}
-
-	myTalker := NewTalker(logger.WithField("test", "a"), onMsg, onClose)
-
-	_, err := myTalker.Connect(*wsUrl, arena.PlayerSpecifications{})
+	myTalker := NewTalker(logger.WithField("test", "a"))
+	mainCtx := context.Background()
+	_, err := myTalker.Connect(mainCtx, *wsUrl, arena.PlayerSpecifications{})
 	assert.Nil(t, err)
 	myTalker.Send([]byte(msgTeste))
 
+	ctxWaitALittle, ack := context.WithTimeout(context.Background(), 200*time.Millisecond)
 	select {
+	case newMsg := <-myTalker.Listen():
+		msgReceived = string(newMsg)
+		ack()
+	case err := <-myTalker.ListenInterruption():
+		assert.Fail(t, err.Text)
 	case <-ctxWaitALittle.Done():
 
 	}
@@ -89,23 +86,23 @@ func TestTalker_ClosingConnection(t *testing.T) {
 
 	logger := logrus.New()
 
-	onMsg := func(bytes []byte) {}
+	myTalker := NewTalker(logger.WithField("test", "a"))
+	mainCtx := context.Background()
 
-	onClose := func() {
-		assert.Fail(t, "should not be called when the connection is closed by the player")
-	}
-
-	myTalker := NewTalker(logger.WithField("test", "a"), onMsg, onClose)
-
-	connectionCtx, err := myTalker.Connect(*wsUrl, arena.PlayerSpecifications{})
+	connectionCtx, err := myTalker.Connect(mainCtx, *wsUrl, arena.PlayerSpecifications{})
 	assert.Nil(t, err)
 	myTalker.Close()
+
 	select {
+	case <-myTalker.Listen():
+		assert.Fail(t, "should not be called when the connection is closed by the player")
+	case <-myTalker.ListenInterruption():
+		assert.Fail(t, "should not be called when the connection is closed by the player")
 	case <-connectionCtx.Done():
 		assert.Equal(t, context.Canceled, connectionCtx.Err(), "should receive a closing message")
-
 	}
 }
+
 func TestTalker_UnnexpectedConnectionClosed(t *testing.T) {
 	connectionName := "unnexpected-clossed-1-test"
 	// Create test server with the echo handler.
@@ -119,24 +116,55 @@ func TestTalker_UnnexpectedConnectionClosed(t *testing.T) {
 
 	logger := logrus.New()
 
-	onMsg := func(bytes []byte) {}
+	myTalker := NewTalker(logger.WithField("test", "a"))
 
-	onCloseWasCalled := false
-	onClose := func() {
-		onCloseWasCalled = true
-	}
-
-	myTalker := NewTalker(logger.WithField("test", "a"), onMsg, onClose)
-
-	connectionCtx, err := myTalker.Connect(*wsUrl, arena.PlayerSpecifications{})
+	mainCtx := context.Background()
+	connectionCtx, err := myTalker.Connect(mainCtx, *wsUrl, arena.PlayerSpecifications{})
 	assert.Nil(t, err)
 	go func() {
 		serverTestConnections[connectionName].Close()
 	}()
+
+	onCloseWasCalled := false
 	select {
+	case <-myTalker.Listen():
+		assert.Fail(t, "should not be called when the connection is closed by the player")
+	case <-myTalker.ListenInterruption():
+		onCloseWasCalled = true
 	case <-connectionCtx.Done():
 		assert.Equal(t, context.Canceled, connectionCtx.Err(), "should receive a closing message")
 	}
 
 	assert.True(t, onCloseWasCalled)
+}
+
+func TestTalker_StopsIfMainCtxStop(t *testing.T) {
+	connectionName := "unnexpected-clossed-1-test"
+	// Create test server with the echo handler.
+	hanlder := echo(connectionName)
+	s := httptest.NewServer(hanlder)
+	defer s.Close()
+
+	// Convert http://127.0.0.1 to ws://127.0.0.
+	u := "ws" + strings.TrimPrefix(s.URL, "http")
+	wsUrl, _ := url.Parse(u)
+
+	logger := logrus.New()
+
+	myTalker := NewTalker(logger.WithField("test", "a"))
+
+	//ctx := context.WithValue(context.Background(), "main", "yes")
+	mainCtx, _ := context.WithTimeout(context.Background(), 100*time.Millisecond)
+
+	connectionCtx, err := myTalker.Connect(mainCtx, *wsUrl, arena.PlayerSpecifications{})
+	assert.Nil(t, err)
+
+	select {
+	case <-myTalker.Listen():
+		assert.Fail(t, "should not be called when the connection is closed by the main context")
+	case <-myTalker.ListenInterruption():
+		assert.Fail(t, "should not be called when the connection is closed by the main context")
+	case <-connectionCtx.Done():
+		assert.Equal(t, context.DeadlineExceeded, connectionCtx.Err(), "should had been cloased by the main context")
+	}
 }

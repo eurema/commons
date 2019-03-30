@@ -14,45 +14,63 @@ import (
 )
 
 type Talker interface {
-	Connect(url url.URL, playerSpec arena.PlayerSpecifications) (ctx context.Context, err error)
+	Connect(mainCtx context.Context, url url.URL, playerSpec arena.PlayerSpecifications) (ctx context.Context, err error)
 	Send(data []byte) error
+	Listen() <-chan []byte
+	ListenInterruption() <-chan *websocket.CloseError
 	Close()
 }
 
 // channel is meant to make the websocket connection and communication easier.
 type channel struct {
-	ws               *websocket.Conn
-	playerSpec       arena.PlayerSpecifications
-	urlConnection    url.URL
-	onMessage        func(bytes []byte)
-	onCloseByPeer    func()
-	connectionCtx    context.Context
-	connectionCloser context.CancelFunc
-	//readingMitx      sync.Mutex
+	ws                *websocket.Conn
+	playerSpec        arena.PlayerSpecifications
+	urlConnection     url.URL
+	connectionCtx     context.Context
+	connectionCloser  context.CancelFunc
+	ReaderChan        chan []byte
+	InterruptChan     chan *websocket.CloseError
 	writingMitx       sync.Mutex
 	logger            *logrus.Entry
 	connectionOpenned bool
 }
 
-func NewTalker(logger *logrus.Entry, onMessage func(bytes []byte), onCloseByPeer func()) Talker {
+//	NewTalker creates a new talker that knows how to talk to the game server
+func NewTalker(logger *logrus.Entry) Talker {
 	return &channel{
-		onMessage:     onMessage,
-		onCloseByPeer: onCloseByPeer,
 		logger:        logger,
+		ReaderChan:    make(chan []byte, 1),
+		InterruptChan: make(chan *websocket.CloseError, 1),
 	}
 }
 
-func (c *channel) Connect(url url.URL, playerSpec arena.PlayerSpecifications) (ctx context.Context, err error) {
+// Connect tries to open a new web socket connection with the game server
+func (c *channel) Connect(mainCtx context.Context, url url.URL, playerSpec arena.PlayerSpecifications) (ctx context.Context, err error) {
 	c.playerSpec = playerSpec
 	c.urlConnection = url
 	if err := c.dial(); err != nil {
 		return nil, err
 	}
-	c.connectionCtx, c.connectionCloser = context.WithCancel(context.Background())
+	c.connectionCtx, c.connectionCloser = context.WithCancel(mainCtx)
 	c.connectionOpenned = true
 	go c.keepListenning()
 
+	go func() {
+		select {
+		case <-mainCtx.Done():
+			c.Close()
+		}
+	}()
 	return c.connectionCtx, nil
+}
+
+// Listen send a new message when the game server send one
+func (c *channel) Listen() <-chan []byte {
+	return c.ReaderChan
+}
+
+func (c *channel) ListenInterruption() <-chan *websocket.CloseError {
+	return c.InterruptChan
 }
 
 // Send allow the player to send a ws message to the game server
@@ -88,9 +106,9 @@ func (c *channel) keepListenning() {
 		msgType, message, err := c.ws.ReadMessage()
 		if e, ok := err.(*websocket.CloseError); ok {
 			if e.Code == websocket.CloseGoingAway || e.Code == websocket.CloseAbnormalClosure {
-				c.onCloseByPeer()
+				c.InterruptChan <- e
 			} else if e.Code == websocket.CloseNormalClosure && c.connectionOpenned {
-				c.onCloseByPeer()
+				c.InterruptChan <- e
 			} else {
 				c.logger.Infof("Connection closed by the player (%d): %s", msgType, e)
 			}
@@ -106,7 +124,7 @@ func (c *channel) keepListenning() {
 			c.connectionCloser() //unexpected
 			return
 		} else {
-			c.onMessage(message)
+			c.ReaderChan <- message
 		}
 	}
 }

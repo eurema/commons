@@ -14,27 +14,17 @@ type Element struct {
 	Velocity Velocity `json:"velocity"`
 }
 
-// IsObstacle detects obstacles within a range
-// for some reason I stopped to use this method, I don't know if it still work @todo test it
-func (e *Element) IsObstacle(target Point, obstacle Point, errMarginDegree float64) (degree float64, inRange bool) {
-	if e.Coords.DistanceTo(obstacle) > e.Coords.DistanceTo(target) {
-		return 0, false
-	} else {
-		vectorTarget := NewVector(e.Coords, target)
-		vectorObstacle := NewVector(e.Coords, obstacle)
-		diff := vectorTarget.AngleWith(vectorObstacle)
-		return diff, math.Abs(diff) <= errMarginDegree
-	}
-}
-
 // HasCollided detects if the element has already collided with another one
 func (e *Element) HasCollided(obstacle *Element) (bool, float64) {
 	minDistance := float64(e.Size+obstacle.Size) / 2
 	if e.Coords.DistanceTo(obstacle.Coords) == 0 {
 		return true, float64(e.Size+obstacle.Size) / 2
 	}
-	centerDistance := NewVector(e.Coords, obstacle.Coords).Length()
-	realDistance := centerDistance - minDistance
+	if e.Coords == obstacle.Coords {
+		return true, 0
+	}
+	centerDistance, _ := NewVector(e.Coords, obstacle.Coords)
+	realDistance := centerDistance.Length() - minDistance
 	return realDistance < 0, realDistance
 }
 
