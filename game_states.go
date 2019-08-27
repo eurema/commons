@@ -6,6 +6,8 @@ type GameState string
 const (
 	//WaitingTeams game state when the game server is waiting for both team's players connections
 	WaitingTeams GameState = "waiting"
+	//Ready game state when the game server is ready to start
+	Ready GameState = "ready"
 	//Listening game state when the game server is listening the player for orders
 	Listening GameState = "listening"
 	//Playing game state when the game server is executing the orders sent during the last `listening` state

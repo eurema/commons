@@ -8,7 +8,8 @@ import (
 )
 
 func createMoveOrder(from physics.Point, to physics.Point, speed float64) Order {
-	vec := physics.NewZeroedVelocity(*physics.NewVector(from, to))
+	p, _ := physics.NewVector(from, to)
+	vec := physics.NewZeroedVelocity(*p)
 	vec.Speed = speed
 	return Order{
 		Type: MOVE,
@@ -17,7 +18,8 @@ func createMoveOrder(from physics.Point, to physics.Point, speed float64) Order 
 }
 
 func createKickOrder(from physics.Point, to physics.Point, speed float64) Order {
-	vec := physics.NewZeroedVelocity(*physics.NewVector(from, to))
+	p, _ := physics.NewVector(from, to)
+	vec := physics.NewZeroedVelocity(*p)
 	vec.Speed = speed
 	return Order{
 		Type: KICK,
