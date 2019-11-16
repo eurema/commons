@@ -1,7 +1,7 @@
 package arena
 
 import (
-	"github.com/makeitplay/arena/physics"
+	"github.com/lugobots/arena/physics"
 )
 
 // TeamPlace defines a side of the team during the game (left for home team, and right for the away team)

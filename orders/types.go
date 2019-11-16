@@ -1,6 +1,6 @@
 package orders
 
-import "github.com/makeitplay/arena"
+import "github.com/lugobots/arena"
 
 // OrderType identifies types of orders that are acceptable by the game server
 type OrderType string
@@ -18,4 +18,6 @@ const (
 	RIP arena.MsgType = "rip"
 	// WELCOME is a message sent by the game server to each player when the new websocket connection is accepted.
 	WELCOME arena.MsgType = "welcome"
+	// ANSWER is a message sent by the game server to a player when the front end sends an answer to the player
+	ANSWER arena.MsgType = "answer"
 )

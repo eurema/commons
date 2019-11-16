@@ -17,7 +17,7 @@ const FieldWidth = 200 * BaseUnit
 const FieldHeight = 100 * BaseUnit
 
 // FieldNeutralCenter is the radius of the neutral circle on the center of the field
-const FieldNeutralCenter = 100
+const FieldNeutralCenter = 20 * BaseUnit
 
 // BallSize size of the element ball
 const BallSize = 2 * BaseUnit

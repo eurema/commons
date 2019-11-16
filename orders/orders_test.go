@@ -2,7 +2,7 @@ package orders
 
 import (
 	"encoding/json"
-	"github.com/makeitplay/arena/physics"
+	"github.com/lugobots/arena/physics"
 	"github.com/stretchr/testify/assert"
 	"testing"
 )
