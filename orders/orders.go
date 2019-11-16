@@ -3,7 +3,7 @@ package orders
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/makeitplay/arena/physics"
+	"github.com/lugobots/arena/physics"
 	"github.com/pkg/errors"
 )
 

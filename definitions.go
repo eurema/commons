@@ -1,8 +1,8 @@
 package arena
 
 import (
-	"github.com/makeitplay/arena/physics"
-	"github.com/makeitplay/arena/units"
+	"github.com/lugobots/arena/physics"
+	"github.com/lugobots/arena/units"
 )
 
 const (

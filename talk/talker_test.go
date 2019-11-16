@@ -3,7 +3,7 @@ package talk
 import (
 	"context"
 	"github.com/gorilla/websocket"
-	"github.com/makeitplay/arena"
+	"github.com/lugobots/arena"
 	"github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/assert"
 	"net/http"

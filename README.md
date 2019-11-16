@@ -1,8 +1,8 @@
 # MakeItPlay - Arena
 
 
-[![GoDoc](https://godoc.org/github.com/makeitplay/arena?status.svg)](https://godoc.org/github.com/makeitplay/arena)
-[![Go Report Card](https://goreportcard.com/badge/github.com/makeitplay/arena)](https://goreportcard.com/report/github.com/makeitplay/arena)
+[![GoDoc](https://godoc.org/github.com/lugobots/arena?status.svg)](https://godoc.org/github.com/lugobots/arena)
+[![Go Report Card](https://goreportcard.com/badge/github.com/lugobots/arena)](https://goreportcard.com/report/github.com/lugobots/arena)
 
 MakeItPlay - Arena is a [Go](http://golang.org/) module that provides some shareable features between the
 game server and the clients of the [MakeItPlay football](http://www.makeitplay.ai/football) game. This module is meant to be used by the  [Client Player](https://github.com/makeitplay/client-player-go)
