@@ -8,8 +8,8 @@ import (
 )
 
 func createMoveOrder(from physics.Point, to physics.Point, speed float64) Order {
-	p, _ := physics.NewVector(from, to)
-	vec := physics.NewZeroedVelocity(*p)
+	vecDir, _ := physics.NewVector(from, to)
+	vec := physics.NewZeroedVelocity(*vecDir)
 	vec.Speed = speed
 	return Order{
 		Type: MOVE,
@@ -18,8 +18,8 @@ func createMoveOrder(from physics.Point, to physics.Point, speed float64) Order 
 }
 
 func createKickOrder(from physics.Point, to physics.Point, speed float64) Order {
-	p, _ := physics.NewVector(from, to)
-	vec := physics.NewZeroedVelocity(*p)
+	vecDir, _ := physics.NewVector(from, to)
+	vec := physics.NewZeroedVelocity(*vecDir)
 	vec.Speed = speed
 	return Order{
 		Type: KICK,
@@ -76,5 +76,32 @@ func TestUnmarshalKickOrder(t *testing.T) {
 		assert.Equal(t, float64(50), kickOrder.Velocity.Speed)
 		assert.Equal(t, float64(5.0), kickOrder.Velocity.Direction.GetX())
 		assert.Equal(t, float64(-14), kickOrder.Velocity.Direction.GetY())
+	}
+}
+
+func TestMarshalAskOrder(t *testing.T) {
+	order := NewAskOrder("Does it work?", []string{"Yes", "No"})
+	cont, err := json.Marshal(order)
+	if err != nil {
+		t.Errorf("Fail on marshal order: %s", err.Error())
+	} else {
+		expected := "{\"order\":\"ASK\",\"data\":{\"question\":\"Does it work?\",\"alternatives\":[\"Yes\",\"No\"]}}"
+		assert.Equal(t, expected, string(cont))
+	}
+}
+
+func TestUnmarshalAskOrder(t *testing.T) {
+	input := []byte("{\"order\":\"ASK\",\"data\":{\"question\":\"Does it work?\",\"alternatives\":[\"Yes\",\"No\"]}}")
+	var order Order
+	err := json.Unmarshal(input, &order)
+	if err != nil {
+		t.Errorf("Fail on unmarshal order: %s", err.Error())
+	} else {
+		assert.Equal(t, order.Type, ASK)
+		askOrder := order.GetAskOrderData()
+		assert.Equal(t, "Does it work?", askOrder.Question)
+		assert.Equal(t, "Yes", askOrder.Alternatives[0])
+		assert.Equal(t, "No", askOrder.Alternatives[1])
+		assert.Len(t, askOrder.Alternatives, 2)
 	}
 }

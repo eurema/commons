@@ -28,6 +28,12 @@ type JumpOrderData struct {
 	Velocity physics.Velocity `json:"velocity"`
 }
 
+// AskOrderData is the expected format of the data field of an order when it's type is Ask
+type AskOrderData struct {
+	Question     string   `json:"question"`
+	Alternatives []string `json:"alternatives"`
+}
+
 const (
 	// orders sent by the PLAYER
 
@@ -40,6 +46,9 @@ const (
 	CATCH OrderType = "CATCH"
 	// JUMP is an action executed only by goal keepers! It allow the goal keeper to use extra speed during a short interval
 	JUMP OrderType = "JUMP"
+	// ASK is an order to interrupt the game (only dev mode) to ask the user (through browser) what the bot should do.
+	// this order may be used by the bot to create data to be used on machine learning.
+	ASK OrderType = "ASK"
 )
 
 // GetMoveOrderData returns the Data order field in MoveOrderData format
@@ -55,6 +64,11 @@ func (o *Order) GetJumpOrderData() JumpOrderData {
 // GetKickOrderData returns the Data order field in KickOrderData format
 func (o *Order) GetKickOrderData() KickOrderData {
 	return o.Data.(KickOrderData)
+}
+
+// GetKickOrderData returns the Data order field in KickOrderData format
+func (o *Order) GetAskOrderData() AskOrderData {
+	return o.Data.(AskOrderData)
 }
 
 // UnmarshalJSON implements the UnmarshalJSON interface for orders
@@ -81,6 +95,10 @@ func (o *Order) UnmarshalJSON(b []byte) error {
 		var mov KickOrderData
 		err = json.Unmarshal(tmp.Data, &mov)
 		o.Data = mov
+	case tmp.Type == ASK:
+		var ask AskOrderData
+		err = json.Unmarshal(tmp.Data, &ask)
+		o.Data = ask
 	case tmp.Type == CATCH:
 		o.Data = nil
 	default:
@@ -89,24 +107,34 @@ func (o *Order) UnmarshalJSON(b []byte) error {
 	return err
 }
 
-func NewMoveOrder(veloticy physics.Velocity) Order {
+func NewMoveOrder(velocity physics.Velocity) Order {
 	return Order{
 		Type: MOVE,
-		Data: MoveOrderData{Velocity: veloticy},
+		Data: MoveOrderData{Velocity: velocity},
 	}
 }
 
-func NewJumpOrder(veloticy physics.Velocity) Order {
+func NewJumpOrder(velocity physics.Velocity) Order {
 	return Order{
 		Type: JUMP,
-		Data: JumpOrderData{Velocity: veloticy},
+		Data: JumpOrderData{Velocity: velocity},
 	}
 }
 
-func NewKickOrder(veloticy physics.Velocity) Order {
+func NewKickOrder(velocity physics.Velocity) Order {
 	return Order{
 		Type: KICK,
-		Data: KickOrderData{Velocity: veloticy},
+		Data: KickOrderData{Velocity: velocity},
+	}
+}
+
+func NewAskOrder(question string, alternatives []string) Order {
+	return Order{
+		Type: ASK,
+		Data: AskOrderData{
+			Question:     question,
+			Alternatives: alternatives,
+		},
 	}
 }
 
